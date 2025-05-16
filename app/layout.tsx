@@ -4,6 +4,7 @@ import { trTR } from "@clerk/localizations";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import { ModalProvider } from "@/providers/modal-provider";
+import { ToastProvider } from "@/providers/toast-provider";
 
 import "./globals.css";
 
@@ -33,6 +34,7 @@ const RootLayout = ({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
+          <ToastProvider />
           <ModalProvider />
           {children}
         </body>
