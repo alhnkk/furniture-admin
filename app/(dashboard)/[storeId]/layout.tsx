@@ -18,9 +18,11 @@ const DashboardLayout = async ({
     redirect("/sign-in");
   }
 
+  const { storeId } = await params;
+
   const store = await prismadb.store.findFirst({
     where: {
-      id: params.storeId,
+      id: storeId,
       userId,
     },
   });
@@ -32,7 +34,7 @@ const DashboardLayout = async ({
       <div>
         <Navbar />
       </div>
-      {children}
+      <div className="m-6 p-2">{children}</div>
     </div>
   );
 };
