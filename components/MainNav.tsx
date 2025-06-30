@@ -27,10 +27,16 @@ export function MainNav({
       href: `/${params.storeId}/categories`,
       label: "Kategori", 
       active: pathname === `/${params.storeId}/categories`,
-    },  {
+    },  
+    {
       href: `/${params.storeId}/sizes`,
       label: "Beden", 
       active: pathname === `/${params.storeId}/sizes`,
+    },
+    {
+      href: `/${params.storeId}/colors`,
+      label: "Renk", 
+      active: pathname === `/${params.storeId}/colors`,
     },
     {
       href: `/${params.storeId}/settings`,
