@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { MessageColumn } from "@/app/(root)/(routes)/messages/components/columns";
+import { MessageColumn } from "@/app/(root)/admin/messages/components/columns";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import { MessageCircle, Mail, User, Calendar } from "lucide-react";

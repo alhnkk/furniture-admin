@@ -19,7 +19,7 @@ const Navbar = async () => {
         <div className="flex items-center space-x-4">
           <Image
             src="/logo.png"
-            alt="Derya Mimarlık"
+            alt="Derya Mimarlık Tasarım"
             width={100}
             height={100}
           />

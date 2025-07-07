@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";    
+import { auth } from "@clerk/nextjs/server";
 
 import prismadb from "@/lib/prismadb";
 
@@ -7,14 +7,14 @@ export async function GET() {
   try {
     const settings = await prismadb.settings.findFirst();
     return NextResponse.json(settings);
-  } catch (error) {
+  } catch {
     return new NextResponse("Dahili sunucu hatası", { status: 500 });
   }
 }
 
 export async function POST(req: Request) {
   try {
-    const { userId } = await auth();    
+    const { userId } = await auth();
     if (!userId) {
       return new NextResponse("Kimlik doğrulanmamış", { status: 401 });
     }
@@ -31,19 +31,19 @@ export async function POST(req: Request) {
         siteName,
         contactInfo,
         socialMedia,
-        metaData
-      }
+        metaData,
+      },
     });
 
     return NextResponse.json(settings);
-  } catch (error) {
+  } catch {
     return new NextResponse("Dahili sunucu hatası", { status: 500 });
   }
 }
 
 export async function PATCH(req: Request) {
   try {
-    const { userId } = await auth();    
+    const { userId } = await auth();
     if (!userId) {
       return new NextResponse("Kimlik doğrulanmamış", { status: 401 });
     }
@@ -60,26 +60,26 @@ export async function PATCH(req: Request) {
         siteName,
         contactInfo,
         socialMedia,
-        metaData
-      }
+        metaData,
+      },
     });
 
     return NextResponse.json(settings);
-  } catch (error) {
+  } catch {
     return new NextResponse("Dahili sunucu hatası", { status: 500 });
   }
 }
 
 export async function DELETE() {
   try {
-    const { userId } = await auth();    
+    const { userId } = await auth();
     if (!userId) {
       return new NextResponse("Kimlik doğrulanmamış", { status: 401 });
     }
 
     const settings = await prismadb.settings.deleteMany();
     return NextResponse.json(settings);
-  } catch (error) {
+  } catch {
     return new NextResponse("Dahili sunucu hatası", { status: 500 });
   }
 }

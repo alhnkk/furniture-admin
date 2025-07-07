@@ -5,16 +5,17 @@ import prismadb from "@/lib/prismadb";
 
 export async function GET(
   req: Request,
-  { params }: { params: { productId: string } }
+  { params }: { params: Promise<{ productId: string }> }
 ) {
   try {
-    if (!params.productId) {
+    const { productId } = await params;
+    if (!productId) {
       return new NextResponse("Product ID gerekli", { status: 400 });
     }
 
     const product = await prismadb.product.findUnique({
       where: {
-        id: params.productId,
+        id: productId,
       },
       include: {
         category: true,
@@ -32,11 +33,12 @@ export async function GET(
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { productId: string } }
+  { params }: { params: Promise<{ productId: string }> }
 ) {
   try {
     const { userId } = await auth();
     const body = await req.json();
+    const { productId } = await params;
 
     const { name, description, categoryId, images, isFeatured, isArchived } =
       body;
@@ -45,7 +47,7 @@ export async function PATCH(
       return new NextResponse("Yetkisiz erişim", { status: 401 });
     }
 
-    if (!params.productId) {
+    if (!productId) {
       return new NextResponse("Product ID gerekli", { status: 400 });
     }
 
@@ -79,7 +81,7 @@ export async function PATCH(
 
     const product = await prismadb.product.update({
       where: {
-        id: params.productId,
+        id: productId,
       },
       data: {
         name,
@@ -104,22 +106,23 @@ export async function PATCH(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { productId: string } }
+  { params }: { params: Promise<{ productId: string }> }
 ) {
   try {
     const { userId } = await auth();
+    const { productId } = await params;
 
     if (!userId) {
       return new NextResponse("Yetkisiz erişim", { status: 401 });
     }
 
-    if (!params.productId) {
+    if (!productId) {
       return new NextResponse("Product ID gerekli", { status: 400 });
     }
 
     const product = await prismadb.product.delete({
       where: {
-        id: params.productId,
+        id: productId,
       },
     });
 

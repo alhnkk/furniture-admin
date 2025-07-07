@@ -4,44 +4,40 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-export function MainNav({
-  className,
-  ..._props
-}: React.HTMLAttributes<HTMLElement>) {
+export function MainNav({ className }: React.HTMLAttributes<HTMLElement>) {
   const pathname = usePathname();
 
   const routes = [
     {
-      href: `/`,
+      href: `/admin`,
       label: "Dashboard",
-      active: pathname === `/`, 
+      active: pathname === `/admin`,
     },
     {
-      href:`/products`,
-      label:"Ürünler",
-      active:pathname === `/products`,
+      href: `/admin/products`,
+      label: "Ürünler",
+      active: pathname === `/admin/products`,
     },
     {
-      href: `/billboards`,
+      href: `/admin/billboards`,
       label: "Billboard",
-      active: pathname === `/billboards`,
+      active: pathname === `/admin/billboards`,
     },
     {
-      href: `/categories`,
+      href: `/admin/categories`,
       label: "Kategori",
-      active: pathname === `/categories`,
+      active: pathname === `/admin/categories`,
     },
     {
-      href: `/messages`,
+      href: `/admin/messages`,
       label: "Mesajlar",
-      active: pathname === `/messages`,
+      active: pathname === `/admin/messages`,
     },
     {
-      href: `/settings`,
+      href: `/admin/settings`,
       label: "Ayarlar",
-      active: pathname === `/settings`,
+      active: pathname === `/admin/settings`,
     },
-
   ];
 
   return (

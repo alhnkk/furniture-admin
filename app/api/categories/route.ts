@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 import prismadb from "@/lib/prismadb";
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     const categories = await prismadb.category.findMany({
       include: {

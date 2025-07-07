@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 import prismadb from "@/lib/prismadb";
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     const billboards = await prismadb.billboard.findMany({
       include: {
@@ -42,12 +42,12 @@ export async function POST(req: Request) {
 
     // Önce yeni görsel kayıtlarını oluştur
     const imageRecords = await Promise.all(
-      images.map(async (image: { url: string, publicId: string }) => {
+      images.map(async (image: { url: string; publicId: string }) => {
         return await prismadb.image.create({
           data: {
             url: image.url,
-            publicId: image.publicId
-          }
+            publicId: image.publicId,
+          },
         });
       })
     );
@@ -56,11 +56,11 @@ export async function POST(req: Request) {
       data: {
         label,
         description,
-        imageId: imageRecords[0].id // Billboard'da tek resim kullanıyoruz
+        imageId: imageRecords[0].id, // Billboard'da tek resim kullanıyoruz
       },
       include: {
-        image: true
-      }
+        image: true,
+      },
     });
 
     return NextResponse.json(billboard);

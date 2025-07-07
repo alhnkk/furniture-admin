@@ -5,16 +5,17 @@ import prismadb from "@/lib/prismadb";
 
 export async function GET(
   req: Request,
-  { params }: { params: { billboardId: string } }
+  { params }: { params: Promise<{ billboardId: string }> }
 ) {
   try {
-    if (!params.billboardId) {
+    const { billboardId } = await params;
+    if (!billboardId) {
       return new NextResponse("Billboard ID gerekli", { status: 400 });
     }
 
     const billboard = await prismadb.billboard.findUnique({
       where: {
-        id: params.billboardId,
+        id: billboardId,
       },
       include: {
         image: true,
@@ -30,11 +31,12 @@ export async function GET(
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { billboardId: string } }
+  { params }: { params: Promise<{ billboardId: string }> }
 ) {
   try {
     const { userId } = await auth();
     const body = await req.json();
+    const { billboardId } = await params;
 
     const { label, description, images } = body;
 
@@ -42,7 +44,7 @@ export async function PATCH(
       return new NextResponse("Yetkisiz erişim", { status: 401 });
     }
 
-    if (!params.billboardId) {
+    if (!billboardId) {
       return new NextResponse("Billboard ID gerekli", { status: 400 });
     }
 
@@ -57,7 +59,7 @@ export async function PATCH(
     // Mevcut billboard'u bul
     const existingBillboard = await prismadb.billboard.findUnique({
       where: {
-        id: params.billboardId,
+        id: billboardId,
       },
       include: {
         image: true,
@@ -91,7 +93,7 @@ export async function PATCH(
 
     const billboard = await prismadb.billboard.update({
       where: {
-        id: params.billboardId,
+        id: billboardId,
       },
       data: {
         label,
@@ -112,23 +114,24 @@ export async function PATCH(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { billboardId: string } }
+  { params }: { params: Promise<{ billboardId: string }> }
 ) {
   try {
     const { userId } = await auth();
+    const { billboardId } = await params;
 
     if (!userId) {
       return new NextResponse("Yetkisiz erişim", { status: 401 });
     }
 
-    if (!params.billboardId) {
+    if (!billboardId) {
       return new NextResponse("Billboard ID gerekli", { status: 400 });
     }
 
     // Önce billboard'a bağlı resmi bul ve sil
     const billboard = await prismadb.billboard.findUnique({
       where: {
-        id: params.billboardId,
+        id: billboardId,
       },
       include: {
         image: true,
@@ -146,7 +149,7 @@ export async function DELETE(
     // Sonra billboard'u sil
     await prismadb.billboard.delete({
       where: {
-        id: params.billboardId,
+        id: billboardId,
       },
     });
 

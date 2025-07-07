@@ -5,16 +5,17 @@ import prismadb from "@/lib/prismadb";
 
 export async function GET(
   req: Request,
-  { params }: { params: { categoryId: string } }
+  { params }: { params: Promise<{ categoryId: string }> }
 ) {
   try {
-    if (!params.categoryId) {
+    const { categoryId } = await params;
+    if (!categoryId) {
       return new NextResponse("Product ID gerekli", { status: 400 });
     }
 
     const category = await prismadb.category.findUnique({
       where: {
-        id: params.categoryId,
+        id: categoryId,
       },
       include: {
         image: true,
@@ -30,11 +31,12 @@ export async function GET(
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { categoryId: string } }
+  { params }: { params: Promise<{ categoryId: string }> }
 ) {
   try {
     const { userId } = await auth();
     const body = await req.json();
+    const { categoryId } = await params;
 
     const { name, description, images } = body;
 
@@ -42,7 +44,7 @@ export async function PATCH(
       return new NextResponse("Yetkisiz erişim", { status: 401 });
     }
 
-    if (!params.categoryId) {
+    if (!categoryId) {
       return new NextResponse("Category ID gerekli", { status: 400 });
     }
 
@@ -57,7 +59,7 @@ export async function PATCH(
     // Mevcut kategoriyi bul
     const existingCategory = await prismadb.category.findUnique({
       where: {
-        id: params.categoryId,
+        id: categoryId,
       },
       include: {
         image: true,
@@ -91,7 +93,7 @@ export async function PATCH(
 
     const category = await prismadb.category.update({
       where: {
-        id: params.categoryId,
+        id: categoryId,
       },
       data: {
         name,
@@ -112,23 +114,24 @@ export async function PATCH(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { categoryId: string } }
+  { params }: { params: Promise<{ categoryId: string }> }
 ) {
   try {
     const { userId } = await auth();
+    const { categoryId } = await params;
 
     if (!userId) {
       return new NextResponse("Yetkisiz erişim", { status: 401 });
     }
 
-    if (!params.categoryId) {
+    if (!categoryId) {
       return new NextResponse("Category ID gerekli", { status: 400 });
     }
 
     // Check if category has any products
     const categoryWithProducts = await prismadb.category.findUnique({
       where: {
-        id: params.categoryId,
+        id: categoryId,
       },
       include: {
         products: true,
@@ -155,7 +158,7 @@ export async function DELETE(
     // Sonra kategoriyi sil
     const category = await prismadb.category.delete({
       where: {
-        id: params.categoryId,
+        id: categoryId,
       },
     });
 

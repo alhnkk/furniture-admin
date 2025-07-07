@@ -26,11 +26,25 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     setIsMounted(true);
   }, []);
 
-  const onSuccess = (result: any) => {
-    onChange({
-      url: result.info.secure_url,
-      publicId: result.info.public_id,
-    });
+  const onSuccess = (result: { info?: unknown }) => {
+    const uploadResult = result;
+
+    if (
+      uploadResult?.info &&
+      typeof uploadResult.info === "object" &&
+      uploadResult.info !== null &&
+      "secure_url" in uploadResult.info &&
+      "public_id" in uploadResult.info
+    ) {
+      const info = uploadResult.info as {
+        secure_url: string;
+        public_id: string;
+      };
+      onChange({
+        url: info.secure_url,
+        publicId: info.public_id,
+      });
+    }
   };
 
   if (!isMounted) {
