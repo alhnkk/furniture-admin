@@ -1,47 +1,41 @@
-import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
-import { trTR } from "@clerk/localizations";
-import { Geist, Geist_Mono } from "next/font/google";
+import { trTR } from '@clerk/localizations'
 
 import { ModalProvider } from "@/providers/modal-provider";
 import { ToastProvider } from "@/providers/toast-provider";
+import { ThemeProvider } from "@/providers/theme-provider";
 
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+const inter = Inter({ subsets: ["latin"] });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export const metadata: Metadata = {
-  title: "Admin Dashboard",
-  description: "Admin Dashboard",
+export const metadata = {
+  title: "Derya Mimarlık Admin",
+  description: "Derya Mimarlık Admin Panel",
 };
 
-const RootLayout = ({
+export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) => {
+}) {
   return (
     <ClerkProvider localization={trTR}>
-      <html lang="en">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-          suppressHydrationWarning
-        >
-          <ToastProvider />
-          <ModalProvider />
-          {children}
+      <html lang="tr">
+        <body suppressHydrationWarning className={inter.className}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <ToastProvider />
+            <ModalProvider />
+            {children}
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>
   );
-};
-
-export default RootLayout;
+}

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 
 interface ImageUploadProps {
   disabled?: boolean;
-  onChange: (value: string) => void;
+  onChange: (value: { url: string; publicId: string }) => void;
   onRemove: (value: string) => void;
   value: string[];
 }
@@ -26,8 +26,11 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     setIsMounted(true);
   }, []);
 
-  const onUpload = (result: any) => {
-    onChange(result.info.secure_url);
+  const onSuccess = (result: any) => {
+    onChange({
+      url: result.info.secure_url,
+      publicId: result.info.public_id,
+    });
   };
 
   if (!isMounted) {
@@ -36,7 +39,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
   return (
     <div>
-      <div className="flex flex-col gap-4">
+      <div className="mb-4 flex items-center gap-4">
         {value.map((url) => (
           <div
             key={url}
@@ -44,26 +47,37 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
           >
             <div className="z-10 absolute top-2 right-2">
               <Button
-                variant="destructive"
-                size="icon"
                 type="button"
                 onClick={() => onRemove(url)}
+                variant="destructive"
+                size="icon"
               >
                 <Trash className="h-4 w-4" />
               </Button>
             </div>
-            <Image src={url} alt="Image" fill className="object-cover" />
+            <Image
+              fill
+              className="object-cover"
+              alt="Image"
+              src={url}
+              sizes="(max-width: 200px) 100vw, 200px"
+            />
           </div>
         ))}
       </div>
-      <CldUploadWidget onSuccess={onUpload} uploadPreset="ssz1ur4i">
+      <CldUploadWidget onSuccess={onSuccess} uploadPreset="ml_default">
         {({ open }) => {
-            const onClick = () => {
-                open();
-            }
+          const onClick = () => {
+            open();
+          };
 
           return (
-            <Button type="button" disabled={disabled} variant="secondary" onClick={onClick}>
+            <Button
+              type="button"
+              disabled={disabled}
+              variant="secondary"
+              onClick={onClick}
+            >
               <ImagePlus className="h-4 w-4 mr-2" />
               Resim Yükle
             </Button>

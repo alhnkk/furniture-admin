@@ -1,49 +1,47 @@
 "use client";
 
-import { useParams, usePathname } from "next/navigation";
-
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 export function MainNav({
   className,
-  ...props
+  ..._props
 }: React.HTMLAttributes<HTMLElement>) {
   const pathname = usePathname();
-  const params = useParams();
 
   const routes = [
     {
-      href: `/${params.storeId}`,
+      href: `/`,
       label: "Dashboard",
-      active: pathname === `/${params.storeId}`,
+      active: pathname === `/`, 
     },
     {
-      href: `/${params.storeId}/billboards`,
-      label: "Billboard", 
-      active: pathname === `/${params.storeId}/billboards`,
+      href:`/products`,
+      label:"Ürünler",
+      active:pathname === `/products`,
     },
     {
-      href: `/${params.storeId}/categories`,
-      label: "Kategori", 
-      active: pathname === `/${params.storeId}/categories`,
-    },  
-    {
-      href: `/${params.storeId}/sizes`,
-      label: "Beden", 
-      active: pathname === `/${params.storeId}/sizes`,
+      href: `/billboards`,
+      label: "Billboard",
+      active: pathname === `/billboards`,
     },
     {
-      href: `/${params.storeId}/colors`,
-      label: "Renk", 
-      active: pathname === `/${params.storeId}/colors`,
+      href: `/categories`,
+      label: "Kategori",
+      active: pathname === `/categories`,
     },
     {
-      href: `/${params.storeId}/settings`,
-      label: "Ayarlar", 
-      active: pathname === `/${params.storeId}/settings`,
+      href: `/messages`,
+      label: "Mesajlar",
+      active: pathname === `/messages`,
     },
-    
+    {
+      href: `/settings`,
+      label: "Ayarlar",
+      active: pathname === `/settings`,
+    },
+
   ];
 
   return (

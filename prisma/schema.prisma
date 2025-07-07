@@ -1,80 +1,112 @@
-  // This is your Prisma schema file,
-  // learn more about it in the docs: https://pris.ly/d/prisma-schema
+generator client {
+  provider = "prisma-client-js"
+}
 
-  // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-  // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
 
-  generator client {
-    provider = "prisma-client-js"
-    output   = "../node_modules/.prisma/client"
-  }
-
-  datasource db {
-    provider = "mysql"
-    url      = env("DATABASE_URL")
-    relationMode = "prisma"
-  }
-
-model Store {
-  id          String @id @default(uuid())
+model Product {
+  id          String      @id @default(uuid())
   name        String
-  userId      String
-  billboards  Billboard[] @relation("StoreToBillboard")   
-  categories  Category[] @relation("StoreToCategory")
-  sizes       Size[] @relation("StoreToSize")
-  colors      Color[] @relation("StoreToColor") 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  description String
+  category    Category    @relation(fields: [categoryId], references: [id])
+  categoryId  String
+  gallery     Gallery[]
+  images      Image[]     // Ana proje görselleri
+  isFeatured  Boolean     @default(false)
+  isArchived  Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([categoryId])
+}
+
+
+
+model Image {
+  id            String    @id @default(uuid())
+  url           String    
+  publicId      String    
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  billboards    Billboard[]
+  categories    Category[]
+  products      Product[]
+  galleries     Gallery[]
 }
 
 model Billboard {
-  id          String @id @default(uuid())
-  storeId     String
-  store       Store    @relation("StoreToBillboard",fields: [storeId], references: [id])
+  id          String    @id @default(uuid())
   label       String
-  imageUrl    String
-  categories  Category[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  description String?
+  image       Image?    @relation(fields: [imageId], references: [id], onDelete: Cascade)
+  imageId     String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  @@index([storeId])
+  @@index([imageId])
 }
+
 
 model Category {
-  id          String @id @default(uuid())
-  storeId     String
-  store       Store    @relation("StoreToCategory",fields: [storeId], references: [id])
-  billboardId String
-  billboard   Billboard @relation(fields: [billboardId], references: [id])
+  id          String    @id @default(uuid())
   name        String
+  description String?
+  image       Image?   @relation(fields: [imageId], references: [id], onDelete: Cascade)
+  imageId     String?
+  products    Product[] 
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([imageId])  
+}
+
+
+
+
+model Gallery {
+  id            String    @id @default(uuid())  
+  productId     String
+  product       Product   @relation(fields: [productId], references: [id])
+  image         Image     @relation(fields: [imageId], references: [id], onDelete: Cascade)
+  imageId       String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt    
+
+  @@index([productId])
+  @@index([imageId])
+}
+
+
+model Translation {
+  id      String @id @default(uuid())
+  key     String @unique
+  tr_text String
+  en_text String
+}
+
+model Settings {
+  id           String @id @default(uuid())
+  siteName     String
+  contactInfo  Json
+  socialMedia  Json
+  metaData     Json
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Contact {
+  id          String @id @default(uuid())
+  name        String
+  email       String
+  phone       String
+  message     String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  @@index([storeId])
-  @@index([billboardId])
-}
-
-model Size {
-  id          String @id @default(uuid())
-  storeId     String
-  store       Store    @relation("StoreToSize",fields: [storeId], references: [id])
-  name        String
-  value       String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt 
-
-  @@index([storeId])
-}
-
-model Color {
-  id          String @id @default(uuid())
-  storeId     String
-  store       Store    @relation("StoreToColor",fields: [storeId], references: [id])
-  name        String
-  value       String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt 
-
-  @@index([storeId])
 }
 

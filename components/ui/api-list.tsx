@@ -1,12 +1,6 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { toast } from "react-hot-toast";
-import { Code, Copy } from "lucide-react";
-
-import Heading from "./heading";
-import { Button } from "./button";
-import { Separator } from "./separator";
 import { useOrigin } from "@/hooks/use-origin";
 import { ApiAlert } from "@/components/ui/api-alert";
 
