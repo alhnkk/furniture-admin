@@ -29,12 +29,14 @@ import { Textarea } from "@/components/ui/textarea";
 const formSchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
-  images: z.array(
-    z.object({
-      url: z.string(),
-      publicId: z.string(),
-    })
-  ),
+  images: z
+    .array(
+      z.object({
+        url: z.string(),
+        publicId: z.string(),
+      })
+    )
+    .min(1, "En az bir görsel gerekli"),
 });
 
 type CategoryFormValues = z.infer<typeof formSchema>;

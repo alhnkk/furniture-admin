@@ -28,12 +28,14 @@ import ImageUpload from "@/components/ui/image-upload";
 const formSchema = z.object({
   label: z.string().min(1),
   description: z.string().optional(),
-  images: z.array(
-    z.object({
-      url: z.string(),
-      publicId: z.string(),
-    })
-  ),
+  images: z
+    .array(
+      z.object({
+        url: z.string(),
+        publicId: z.string(),
+      })
+    )
+    .min(1, "En az bir görsel gerekli"),
 });
 
 type BillboardFormValues = z.infer<typeof formSchema>;
@@ -151,14 +153,8 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({
                   <ImageUpload
                     value={field.value.map((image) => image.url)}
                     disabled={loading}
-                    onChange={(image) =>
-                      field.onChange([...field.value, image])
-                    }
-                    onRemove={(url) =>
-                      field.onChange(
-                        field.value.filter((current) => current.url !== url)
-                      )
-                    }
+                    onChange={(image) => field.onChange([image])}
+                    onRemove={() => field.onChange([])}
                   />
                 </FormControl>
                 <FormMessage />

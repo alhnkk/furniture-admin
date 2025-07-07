@@ -70,27 +70,15 @@ export async function PATCH(
       return new NextResponse("Kategori bulunamadı", { status: 404 });
     }
 
-    // Eski resmi sil
-    if (existingCategory.image) {
-      await prismadb.image.delete({
-        where: {
-          id: existingCategory.image.id,
-        },
-      });
-    }
+    // Önce yeni image'i oluştur
+    const newImage = await prismadb.image.create({
+      data: {
+        url: images[0].url,
+        publicId: images[0].publicId,
+      },
+    });
 
-    // Yeni resimleri oluştur
-    const imageRecords = await Promise.all(
-      images.map(async (image: { url: string; publicId: string }) => {
-        return await prismadb.image.create({
-          data: {
-            url: image.url,
-            publicId: image.publicId,
-          },
-        });
-      })
-    );
-
+    // Category'yi yeni image ile güncelle
     const category = await prismadb.category.update({
       where: {
         id: categoryId,
@@ -98,12 +86,24 @@ export async function PATCH(
       data: {
         name,
         description: description || null,
-        imageId: imageRecords[0].id, // Kategoride tek resim kullanıyoruz
+        imageId: newImage.id,
       },
       include: {
         image: true,
       },
     });
+
+    // Son olarak eski image'i sil (eğer varsa ve yeni image'den farklıysa)
+    if (existingCategory.image && existingCategory.image.id !== newImage.id) {
+      await prismadb.image.delete({
+        where: {
+          id: existingCategory.image.id,
+        },
+      }).catch((error) => {
+        // Eski image silme başarısız olsa bile category güncellemesi başarılı oldu
+        console.log("[CATEGORY_PATCH] Eski image silinirken hata:", error);
+      });
+    }
 
     return NextResponse.json(category);
   } catch (error) {
@@ -146,21 +146,24 @@ export async function DELETE(
       );
     }
 
-    // Önce resmi sil
-    if (categoryWithProducts?.image) {
-      await prismadb.image.delete({
-        where: {
-          id: categoryWithProducts.image.id,
-        },
-      });
-    }
-
-    // Sonra kategoriyi sil
+    // Kategoriyi sil
     const category = await prismadb.category.delete({
       where: {
         id: categoryId,
       },
     });
+
+    // Son olarak bağlı image'i sil (eğer varsa)
+    if (categoryWithProducts?.image) {
+      await prismadb.image.delete({
+        where: {
+          id: categoryWithProducts.image.id,
+        },
+      }).catch((error) => {
+        // Image silme başarısız olsa bile category silme işlemi başarılı oldu
+        console.log("[CATEGORY_DELETE] Image silinirken hata:", error);
+      });
+    }
 
     return NextResponse.json(category);
   } catch (error) {

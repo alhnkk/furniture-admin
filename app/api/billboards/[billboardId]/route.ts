@@ -70,27 +70,15 @@ export async function PATCH(
       return new NextResponse("Billboard bulunamadı", { status: 404 });
     }
 
-    // Eski resmi sil
-    if (existingBillboard.image) {
-      await prismadb.image.delete({
-        where: {
-          id: existingBillboard.image.id,
-        },
-      });
-    }
+    // Önce yeni image'i oluştur
+    const newImage = await prismadb.image.create({
+      data: {
+        url: images[0].url,
+        publicId: images[0].publicId,
+      },
+    });
 
-    // Yeni resimleri oluştur
-    const imageRecords = await Promise.all(
-      images.map(async (image: { url: string; publicId: string }) => {
-        return await prismadb.image.create({
-          data: {
-            url: image.url,
-            publicId: image.publicId,
-          },
-        });
-      })
-    );
-
+    // Billboard'u yeni image ile güncelle
     const billboard = await prismadb.billboard.update({
       where: {
         id: billboardId,
@@ -98,12 +86,26 @@ export async function PATCH(
       data: {
         label,
         description,
-        imageId: imageRecords[0].id, // Billboard'da tek resim kullanıyoruz
+        imageId: newImage.id,
       },
       include: {
         image: true,
       },
     });
+
+    // Son olarak eski image'i sil (eğer varsa ve yeni image'den farklıysa)
+    if (existingBillboard.image && existingBillboard.image.id !== newImage.id) {
+      await prismadb.image
+        .delete({
+          where: {
+            id: existingBillboard.image.id,
+          },
+        })
+        .catch((error) => {
+          // Eski image silme başarısız olsa bile billboard güncellemesi başarılı oldu
+          console.log("[BILLBOARD_PATCH] Eski image silinirken hata:", error);
+        });
+    }
 
     return NextResponse.json(billboard);
   } catch (error) {
@@ -128,7 +130,7 @@ export async function DELETE(
       return new NextResponse("Billboard ID gerekli", { status: 400 });
     }
 
-    // Önce billboard'a bağlı resmi bul ve sil
+    // Önce billboard'u bul
     const billboard = await prismadb.billboard.findUnique({
       where: {
         id: billboardId,
@@ -138,20 +140,30 @@ export async function DELETE(
       },
     });
 
-    if (billboard?.image) {
-      await prismadb.image.delete({
-        where: {
-          id: billboard.image.id,
-        },
-      });
+    if (!billboard) {
+      return new NextResponse("Billboard bulunamadı", { status: 404 });
     }
 
-    // Sonra billboard'u sil
+    // Billboard'u sil
     await prismadb.billboard.delete({
       where: {
         id: billboardId,
       },
     });
+
+    // Son olarak bağlı image'i sil (eğer varsa)
+    if (billboard.image) {
+      await prismadb.image
+        .delete({
+          where: {
+            id: billboard.image.id,
+          },
+        })
+        .catch((error) => {
+          // Image silme başarısız olsa bile billboard silme işlemi başarılı oldu
+          console.log("[BILLBOARD_DELETE] Image silinirken hata:", error);
+        });
+    }
 
     return NextResponse.json(billboard);
   } catch (error) {
