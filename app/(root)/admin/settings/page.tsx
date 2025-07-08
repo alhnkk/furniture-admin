@@ -319,7 +319,7 @@ export default function SettingsPage() {
                   name="metaData.description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Meta Açıklama</FormLabel>
+                      <FormLabel>Açıklama</FormLabel>
                       <FormControl>
                         <Textarea
                           disabled={loading}
